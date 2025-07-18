@@ -1,11 +1,14 @@
 import express from 'express'
+import boardRouters from './routes/board.routes';
 
 const app = express();
 const PORT = 3000;
 
-app.get('/', (req, res) => {
-    res.send('Backend działa')
-})
+app.use(express.json());
+
+
+app.use('/boards',boardRouters);
+
 
 app.listen(PORT,() => {
     console.log((`Backend działa na porcie ${PORT}`))
