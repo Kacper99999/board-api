@@ -1,21 +1,44 @@
 import { Request, Response } from 'express';
-import { boards } from '../data/boards';
-import { Board } from '../types/board';
+import { BoardModel } from '../model/board.model';
+import { Board, BoardInput } from '../types/board';
 
-export const getBoards = (req: Request, res: Response) => {
-  res.json(boards);
+export const getBoards = async (req: Request, res: Response) => {
+  try {
+    const boards: Board[] = await BoardModel.find();
+    res.status(200).json(boards);
+  } catch (error) {
+    res.status(500).json({ message: `Something went wrong${error as Error}` });
+  }
 };
 
-export const postBoards = (req: Request, res: Response) => {
+export const postBoards = async (
+  req: Request<Record<string, never>, unknown, BoardInput>,
+  res: Response
+) => {
   const { title } = req.body;
   if (!title) {
-    return res.status(400).send('Title is required');
+    return res.status(400).json({ message: 'Title is required!' });
   }
-  const newBoard: Board = {
-    id: boards.length + 1,
-    title,
-  };
-
-  boards.push(newBoard);
-  res.status(201).json(newBoard);
+  try {
+    const newBoard = await BoardModel.create({ title });
+    res.status(201).json(newBoard);
+  } catch (error) {
+    res.status(500).json({ message: `Something went wrong ${error as Error}` });
+  }
 };
+
+// export const deleteBoard = async (req: Request, res: Response) => {
+//   const { id } = req.params;
+//   if (!id) {
+//     return res.status(400).json({ message: 'Board is required!' });
+//   }
+//   try {
+//     const deletedBoard = await BoardModel.findById(id);
+//     if (!deletedBoard) {
+//       return res.status(404).json({ message: 'Board not found' });
+//     }
+//     res.status(200).json(deletedBoard);
+//   } catch (error) {
+//     res.status(500).json({ message: `Something went wrong ${error as Error}` });
+//   }
+// };

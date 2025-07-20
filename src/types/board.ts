@@ -1,4 +1,10 @@
+import { Types } from 'mongoose';
+
+export interface BoardInput {
+  title: string;
+}
+
 export interface Board {
-  id: number;
+  _id: Types.ObjectId;
   title: string;
 }

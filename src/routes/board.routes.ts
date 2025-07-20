@@ -5,5 +5,6 @@ const router = Router();
 
 router.get('/', getBoards);
 router.post('/', postBoards);
+// router.delete('/:id', deleteBoard);
 
 export default router;
