@@ -27,18 +27,22 @@ export const postBoards = async (
   }
 };
 
-// export const deleteBoard = async (req: Request, res: Response) => {
-//   const { id } = req.params;
-//   if (!id) {
-//     return res.status(400).json({ message: 'Board is required!' });
-//   }
-//   try {
-//     const deletedBoard = await BoardModel.findById(id);
-//     if (!deletedBoard) {
-//       return res.status(404).json({ message: 'Board not found' });
-//     }
-//     res.status(200).json(deletedBoard);
-//   } catch (error) {
-//     res.status(500).json({ message: `Something went wrong ${error as Error}` });
-//   }
-// };
+export const deleteBoard = async (req: Request<{ id: string }>, res: Response) => {
+  const { id } = req.params;
+  if (!id) {
+    return res.status(400).json({ message: 'Board is required!' });
+  }
+  try {
+    const deletedBoard = await BoardModel.findByIdAndDelete(id);
+    if (!deletedBoard) {
+      return res.status(404).json({ message: 'Board not found' });
+    }
+    res.status(200).json(deletedBoard);
+  } catch (error) {
+    if (error instanceof Error) {
+      res.status(500).json({ message: `Something went wrong ${error.message}` });
+    } else {
+      res.status(500).json({ message: 'Something went wrong' });
+    }
+  }
+};
