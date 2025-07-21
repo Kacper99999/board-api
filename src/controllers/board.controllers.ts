@@ -46,3 +46,27 @@ export const deleteBoard = async (req: Request<{ id: string }>, res: Response) =
     }
   }
 };
+
+export const updateBoard = async (
+  req: Request<{ id: string }, unknown, BoardInput>,
+  res: Response
+) => {
+  const { id } = req.params;
+  const { title } = req.body;
+  if (!id) {
+    return res.status(400).json({ message: 'Board is required!' });
+  }
+  try {
+    const updatedBoard = await BoardModel.findByIdAndUpdate(id, { title }, { new: true });
+    if (!updatedBoard) {
+      return res.status(404).json({ message: 'Board not found' });
+    }
+    res.status(200).json(updatedBoard);
+  } catch (error) {
+    if (error instanceof Error) {
+      res.status(500).json({ message: `Something went wrong ${error.message}` });
+    } else {
+      res.status(500).json({ message: 'Something went wrong' });
+    }
+  }
+};
