@@ -1,5 +1,5 @@
 import { Request, Response } from 'express';
-import { BoardModel } from '../model/board.model';
+import { BoardModel } from '../models/board.model';
 import { Board, BoardInput } from '../types/board';
 
 export const getBoards = async (req: Request, res: Response) => {
@@ -62,6 +62,26 @@ export const updateBoard = async (
       return res.status(404).json({ message: 'Board not found' });
     }
     res.status(200).json(updatedBoard);
+  } catch (error) {
+    if (error instanceof Error) {
+      res.status(500).json({ message: `Something went wrong ${error.message}` });
+    } else {
+      res.status(500).json({ message: 'Something went wrong' });
+    }
+  }
+};
+
+export const getBoardByID = async (req: Request<{ id: string }>, res: Response) => {
+  const { id } = req.params;
+  if (!id) {
+    return res.status(400).json({ message: 'Board is required!' });
+  }
+  try {
+    const foundBoard = await BoardModel.findById(id);
+    if (!foundBoard) {
+      return res.status(404).json({ message: 'Board not fount' });
+    }
+    res.status(200).json(foundBoard);
   } catch (error) {
     if (error instanceof Error) {
       res.status(500).json({ message: `Something went wrong ${error.message}` });
