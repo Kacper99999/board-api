@@ -1,8 +1,8 @@
-import { Request, Response } from 'express';
+import { Request, Response, NextFunction } from 'express';
 import { BoardModel } from '../models/board.model';
 import { Board, BoardInput } from '../types/board';
 
-export const getBoards = async (req: Request, res: Response) => {
+export const getBoards = async (_req: Request, res: Response) => {
   try {
     const boards: Board[] = await BoardModel.find();
     res.status(200).json(boards);
@@ -13,7 +13,8 @@ export const getBoards = async (req: Request, res: Response) => {
 
 export const postBoards = async (
   req: Request<Record<string, never>, unknown, BoardInput>,
-  res: Response
+  res: Response,
+  next: NextFunction
 ) => {
   const { title } = req.body;
   if (!title) {
@@ -23,11 +24,15 @@ export const postBoards = async (
     const newBoard = await BoardModel.create({ title });
     res.status(201).json(newBoard);
   } catch (error) {
-    res.status(500).json({ message: `Something went wrong ${error as Error}` });
+    next(error);
   }
 };
 
-export const deleteBoard = async (req: Request<{ id: string }>, res: Response) => {
+export const deleteBoard = async (
+  req: Request<{ id: string }>,
+  res: Response,
+  next: NextFunction
+) => {
   const { id } = req.params;
   if (!id) {
     return res.status(400).json({ message: 'Board is required!' });
@@ -39,17 +44,14 @@ export const deleteBoard = async (req: Request<{ id: string }>, res: Response) =
     }
     res.status(200).json(deletedBoard);
   } catch (error) {
-    if (error instanceof Error) {
-      res.status(500).json({ message: `Something went wrong ${error.message}` });
-    } else {
-      res.status(500).json({ message: 'Something went wrong' });
-    }
+    next(error);
   }
 };
 
 export const updateBoard = async (
   req: Request<{ id: string }, unknown, BoardInput>,
-  res: Response
+  res: Response,
+  next: NextFunction
 ) => {
   const { id } = req.params;
   const { title } = req.body;
@@ -63,15 +65,15 @@ export const updateBoard = async (
     }
     res.status(200).json(updatedBoard);
   } catch (error) {
-    if (error instanceof Error) {
-      res.status(500).json({ message: `Something went wrong ${error.message}` });
-    } else {
-      res.status(500).json({ message: 'Something went wrong' });
-    }
+    next(error);
   }
 };
 
-export const getBoardByID = async (req: Request<{ id: string }>, res: Response) => {
+export const getBoardByID = async (
+  req: Request<{ id: string }>,
+  res: Response,
+  next: NextFunction
+) => {
   const { id } = req.params;
   if (!id) {
     return res.status(400).json({ message: 'Board is required!' });
@@ -83,10 +85,6 @@ export const getBoardByID = async (req: Request<{ id: string }>, res: Response) 
     }
     res.status(200).json(foundBoard);
   } catch (error) {
-    if (error instanceof Error) {
-      res.status(500).json({ message: `Something went wrong ${error.message}` });
-    } else {
-      res.status(500).json({ message: 'Something went wrong' });
-    }
+    next(error);
   }
 };

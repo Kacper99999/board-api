@@ -1,11 +1,12 @@
-import { Request, Response } from 'express';
+import { Request, Response, NextFunction } from 'express';
 import bcrypt from 'bcrypt';
 import { UserModel } from '../models/user.model';
 import { UserInput } from '../types/user';
 
 export const registerUser = async (
   req: Request<Record<string, never>, unknown, UserInput>,
-  res: Response
+  res: Response,
+  next: NextFunction
 ) => {
   const { userName, email, password } = req.body;
   if (!userName || !email || !password) {
@@ -20,10 +21,6 @@ export const registerUser = async (
     const newUser = await UserModel.create({ userName, email, password: hashedPassword });
     res.status(201).json(newUser);
   } catch (error) {
-    if (error instanceof Error) {
-      res.status(500).json({ message: `Something went wrong ${error.message}` });
-    } else {
-      res.status(500).json({ message: 'Something went wrong' });
-    }
+    next(error);
   }
 };

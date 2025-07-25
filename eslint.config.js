@@ -17,6 +17,7 @@ export default defineConfig([
     },
     rules: {
       'prettier/prettier': 'error',
+      '@typescript-eslint/no-unused-vars': ['error', { argsIgnorePattern: '^_' }],
     },
     extends: ['js/recommended'],
   },

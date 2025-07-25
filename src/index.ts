@@ -1,4 +1,4 @@
-import express, { NextFunction } from 'express';
+import express, { NextFunction, Response, Request } from 'express';
 import boardRouters from './routes/board.routes';
 import userRouters from './routes/user.routers';
 import mongoose from 'mongoose';
@@ -23,7 +23,10 @@ mongoose
     console.error(`Error MongoDB ${error}`);
   });
 
-app.use((err: Error, req: Request, res: Response, next: NextFunction) => {
-  console.error(err.stack);
-  res.status(500).json({ message: 'Something went wrong' });
+app.use((error: Error, _req: Request, res: Response, _next: NextFunction) => {
+  if (error instanceof Error) {
+    res.status(500).json({ message: `Something went wrong ${error.message}` });
+  } else {
+    res.status(500).json({ message: 'Something went wrong' });
+  }
 });
