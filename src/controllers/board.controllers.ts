@@ -2,12 +2,12 @@ import { Request, Response, NextFunction } from 'express';
 import { BoardModel } from '../models/board.model';
 import { Board, BoardInput } from '../types/board';
 
-export const getBoards = async (_req: Request, res: Response) => {
+export const getBoards = async (_req: Request, res: Response, next: NextFunction) => {
   try {
     const boards: Board[] = await BoardModel.find();
     res.status(200).json(boards);
   } catch (error) {
-    res.status(500).json({ message: `Something went wrong${error as Error}` });
+    return next(error);
   }
 };
 
@@ -24,7 +24,7 @@ export const postBoards = async (
     const newBoard = await BoardModel.create({ title });
     res.status(201).json(newBoard);
   } catch (error) {
-    next(error);
+    return next(error);
   }
 };
 
@@ -44,7 +44,7 @@ export const deleteBoard = async (
     }
     res.status(200).json(deletedBoard);
   } catch (error) {
-    next(error);
+    return next(error);
   }
 };
 
@@ -65,7 +65,7 @@ export const updateBoard = async (
     }
     res.status(200).json(updatedBoard);
   } catch (error) {
-    next(error);
+    return next(error);
   }
 };
 
@@ -85,6 +85,6 @@ export const getBoardByID = async (
     }
     res.status(200).json(foundBoard);
   } catch (error) {
-    next(error);
+    return next(error);
   }
 };

@@ -2,6 +2,9 @@ import express, { NextFunction, Response, Request } from 'express';
 import boardRouters from './routes/board.routes';
 import userRouters from './routes/user.routers';
 import mongoose from 'mongoose';
+import dotenv from 'dotenv';
+
+dotenv.config();
 
 const app = express();
 const PORT = 3000;
