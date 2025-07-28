@@ -2,6 +2,7 @@ import { Request, Response, NextFunction } from 'express';
 import bcrypt from 'bcrypt';
 import { UserModel } from '../models/user.model';
 import { UserInput } from '../types/user';
+import { AuthRequest } from '../middleware/auth.middleware';
 import * as jwt from 'jsonwebtoken';
 
 export const registerUser = async (
@@ -53,6 +54,21 @@ export const loginUser = async (
       expiresIn: process.env.JWT_EXPIRES_IN || '1h',
     });
     res.status(200).json({ token });
+  } catch (error) {
+    return next(error);
+  }
+};
+
+export const getCurrentUser = async (req: AuthRequest, res: Response, next: NextFunction) => {
+  try {
+    if (!req.user) {
+      return res.status(401).json({ message: 'Unauthorized' });
+    }
+    const user = await UserModel.findById(req.user.userId).select('-password');
+    if (!user) {
+      return res.status(404).json({ message: 'User not found' });
+    }
+    res.status(200).json(user);
   } catch (error) {
     return next(error);
   }
