@@ -45,11 +45,12 @@ export const loginUser = async (
     if (!passwordMatch) {
       return res.status(401).json({ message: 'Invalid email or password' });
     }
-    const payload = { user: user._id, email: user.email };
+    const payload = { userId: user._id, email: user.email };
     const secret = process.env.JWT_SECRET;
     if (!secret) {
       throw new Error('JWT_SECRET is not definet in environment variables');
     }
+    console.log(secret);
     const token = jwt.sign(payload, secret, {
       expiresIn: process.env.JWT_EXPIRES_IN || '1h',
     });

@@ -11,12 +11,13 @@ export const authenticateToken = (req: AuthRequest, res: Response, next: NextFun
   if (!token) {
     return res.status(401).json({ message: 'Access token required' });
   }
+  const secret = process.env.JWT_SECRET;
+  if (!secret) {
+    return next(new Error('JWT_SECRET is not definet in environment variables'));
+  }
   try {
-    const secret = process.env.JWT_SECRET;
-    if (!secret) {
-      return next(new Error('JWT_SECRET is not definet in environment variables'));
-    }
-    const decoded = jwt.verify(token, secret) as unknown as { userId: string; email: string };
+    console.log(secret);
+    const decoded = jwt.verify(token, secret) as { userId: string; email: string };
     req.user = decoded;
     next();
   } catch {
