@@ -16,11 +16,11 @@ export const authenticateToken = (req: AuthRequest, res: Response, next: NextFun
     return next(new Error('JWT_SECRET is not definet in environment variables'));
   }
   try {
-    console.log(secret);
     const decoded = jwt.verify(token, secret) as { userId: string; email: string };
     req.user = decoded;
     next();
-  } catch {
+  } catch (err) {
+    console.log(err);
     return res.status(403).json({ message: 'Invalid or expired token' });
   }
 };
