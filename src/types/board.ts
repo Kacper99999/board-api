@@ -2,6 +2,7 @@ import { Types } from 'mongoose';
 
 export interface BoardInput {
   title: string;
+  description: string;
 }
 
 export interface Board {

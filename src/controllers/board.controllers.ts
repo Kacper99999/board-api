@@ -1,29 +1,34 @@
 import { Request, Response, NextFunction } from 'express';
 import { BoardModel } from '../models/board.model';
-import { Board, BoardInput } from '../types/board';
+import { BoardInput } from '../types/board';
+import { AuthRequest } from '../middleware/auth.middleware';
 
-export const getBoards = async (_req: Request, res: Response, next: NextFunction) => {
-  try {
-    const boards: Board[] = await BoardModel.find();
-    res.status(200).json(boards);
-  } catch (error) {
-    return next(error);
-  }
-};
+interface BoardRequest extends AuthRequest {
+  body: BoardInput;
+}
 
-export const postBoards = async (
-  req: Request<Record<string, never>, unknown, BoardInput>,
-  res: Response,
-  next: NextFunction
-) => {
-  const { title } = req.body;
-  if (!title) {
-    return res.status(400).json({ message: 'Title is required!' });
+// export const getBoards = async (_req: Request, res: Response, next: NextFunction) => {
+//   try {
+//     const boards: Board[] = await BoardModel.find();
+//     res.status(200).json(boards);
+//   } catch (error) {
+//     return next(error);
+//   }
+// };
+
+export const postBoards = async (req: BoardRequest, res: Response, next: NextFunction) => {
+  if (!req.user) {
+    return res.status(401).json({ message: 'Unauthorized' });
+  }
+  const { title, description } = req.body;
+  if (!title || !description) {
+    return res.status(400).json({ message: 'Title and description is required!' });
   }
   try {
-    const newBoard = await BoardModel.create({ title });
+    const newBoard = await BoardModel.create({ title, description, author: req.user.userId });
     res.status(201).json(newBoard);
   } catch (error) {
+    console.log(error);
     return next(error);
   }
 };
@@ -69,21 +74,13 @@ export const updateBoard = async (
   }
 };
 
-export const getBoardByID = async (
-  req: Request<{ id: string }>,
-  res: Response,
-  next: NextFunction
-) => {
-  const { id } = req.params;
-  if (!id) {
-    return res.status(400).json({ message: 'Board is required!' });
+export const getBoardByUser = async (req: AuthRequest, res: Response, next: NextFunction) => {
+  if (!req.user) {
+    return res.status(401).json({ message: 'Unauthorized' });
   }
   try {
-    const foundBoard = await BoardModel.findById(id);
-    if (!foundBoard) {
-      return res.status(404).json({ message: 'Board not fount' });
-    }
-    res.status(200).json(foundBoard);
+    const userBoards = await BoardModel.find({ author: req.user.userId });
+    res.status(200).json(userBoards);
   } catch (error) {
     return next(error);
   }

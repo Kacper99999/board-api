@@ -1,8 +1,14 @@
-import { Schema, model } from 'mongoose';
+import mongoose, { Schema, model } from 'mongoose';
 
 const boardSchema = new Schema(
   {
-    title: { type: String, requirded: true },
+    title: { type: String, required: true },
+    description: { type: String },
+    author: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: 'User',
+      required: true,
+    },
   },
   {
     timestamps: true,
