@@ -3,6 +3,7 @@ import boardRouters from './routes/board.routes';
 import userRouters from './routes/user.routers';
 import mongoose from 'mongoose';
 import dotenv from 'dotenv';
+import cors from 'cors';
 
 dotenv.config();
 
@@ -10,7 +11,12 @@ const app = express();
 const PORT = 3000;
 
 app.use(express.json());
-
+app.use(
+  cors({
+    origin: 'http://localhost:5173',
+    credentials: true,
+  })
+);
 app.use('/boards', boardRouters);
 app.use('/auth', userRouters);
 
