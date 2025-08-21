@@ -1,6 +1,6 @@
 import { Router } from 'express';
 import {
-  // getBoards,
+  getBoards,
   getBoardByUser,
   postBoards,
   deleteBoard,
@@ -10,7 +10,7 @@ import { authenticateToken } from '../middleware/auth.middleware';
 
 const router = Router();
 
-// router.get('/', getBoards);
+router.get('/', getBoards);
 router.get('/', authenticateToken, getBoardByUser);
 router.post('/', authenticateToken, postBoards);
 router.delete('/:id', deleteBoard);

@@ -50,11 +50,13 @@ export const loginUser = async (
     if (!secret) {
       throw new Error('JWT_SECRET is not definet in environment variables');
     }
-    console.log(secret);
     const token = jwt.sign(payload, secret, {
       expiresIn: process.env.JWT_EXPIRES_IN || '1h',
     });
-    res.status(200).json({ token });
+    res.status(200).json({
+      user: { userName: user.userName, email: user.email, password: user.password },
+      token,
+    });
   } catch (error) {
     return next(error);
   }

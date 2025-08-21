@@ -7,14 +7,14 @@ interface BoardRequest extends AuthRequest {
   body: BoardInput;
 }
 
-// export const getBoards = async (_req: Request, res: Response, next: NextFunction) => {
-//   try {
-//     const boards: Board[] = await BoardModel.find();
-//     res.status(200).json(boards);
-//   } catch (error) {
-//     return next(error);
-//   }
-// };
+export const getBoards = async (_req: Request, res: Response, next: NextFunction) => {
+  try {
+    const boards = await BoardModel.find();
+    res.status(200).json(boards);
+  } catch (error) {
+    return next(error);
+  }
+};
 
 export const postBoards = async (req: BoardRequest, res: Response, next: NextFunction) => {
   if (!req.user) {
