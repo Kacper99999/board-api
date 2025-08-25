@@ -28,7 +28,6 @@ export const postBoards = async (req: BoardRequest, res: Response, next: NextFun
     const newBoard = await BoardModel.create({ title, description, author: req.user.userId });
     res.status(201).json(newBoard);
   } catch (error) {
-    console.log(error);
     return next(error);
   }
 };
