@@ -9,6 +9,14 @@ interface PostRequest extends AuthRequest {
   params: { boardId: string };
 }
 
+interface getPostsByBoardRequest extends AuthRequest {
+  params: { boardId: string };
+}
+
+interface PostByIDRequest extends AuthRequest {
+  params: { boardId: string; postId: string };
+}
+
 export const createPost = async (req: PostRequest, res: Response, next: NextFunction) => {
   if (!req.user) {
     return res.status(401).json({ message: 'Unauthorized' });
@@ -26,6 +34,30 @@ export const createPost = async (req: PostRequest, res: Response, next: NextFunc
     const newPost = await PostModel.create({ title, content, boardId, authorId: req.user.userId });
     const populatePost = await newPost.populate('authorId', 'userName');
     res.status(201).json(populatePost);
+  } catch (error) {
+    return next(error);
+  }
+};
+
+export const getPostsByBoard = async (
+  req: getPostsByBoardRequest,
+  res: Response,
+  next: NextFunction
+) => {
+  const { boardId } = req.params;
+  try {
+    const posts = await PostModel.find({ boardId }).populate('authorId', 'userName');
+    res.status(200).json(posts);
+  } catch (error) {
+    return next(error);
+  }
+};
+
+export const getPostByID = async (req: PostByIDRequest, res: Response, next: NextFunction) => {
+  const { postId } = req.params;
+  try {
+    const findedPost = await PostModel.findById(postId);
+    res.status(200).json({ findedPost });
   } catch (error) {
     return next(error);
   }
