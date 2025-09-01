@@ -9,11 +9,16 @@ interface PostRequest extends AuthRequest {
   params: { boardId: string };
 }
 
-interface getPostsByBoardRequest extends AuthRequest {
+interface GetPostsByBoardRequest extends AuthRequest {
   params: { boardId: string };
 }
 
 interface PostByIDRequest extends AuthRequest {
+  params: { boardId: string; postId: string };
+}
+
+interface UpdateRequest extends AuthRequest {
+  body: PostInput;
   params: { boardId: string; postId: string };
 }
 
@@ -40,7 +45,7 @@ export const createPost = async (req: PostRequest, res: Response, next: NextFunc
 };
 
 export const getPostsByBoard = async (
-  req: getPostsByBoardRequest,
+  req: GetPostsByBoardRequest,
   res: Response,
   next: NextFunction
 ) => {
@@ -56,8 +61,33 @@ export const getPostsByBoard = async (
 export const getPostByID = async (req: PostByIDRequest, res: Response, next: NextFunction) => {
   const { postId } = req.params;
   try {
-    const findedPost = await PostModel.findById(postId);
-    res.status(200).json({ findedPost });
+    const findedPost = await PostModel.findById(postId).populate('authorId', 'userName');
+    if (!findedPost) {
+      return res.status(404).json({ message: 'Post not found' });
+    }
+    res.status(200).json(findedPost);
+  } catch (error) {
+    return next(error);
+  }
+};
+
+export const updatePost = async (req: UpdateRequest, res: Response, next: NextFunction) => {
+  const { postId } = req.params;
+  const { title, content } = req.body;
+  try {
+    const post = await PostModel.findById(postId);
+    if (!post) {
+      return res.status(404).json({ message: 'Post not found' });
+    }
+    if (post.authorId?.toString() !== req.user?.userId) {
+      return res.status(403).json({ message: 'Forbidden: you can only edit your own posts' });
+    }
+    const updatedPost = await PostModel.findByIdAndUpdate(
+      postId,
+      { title, content },
+      { new: true }
+    ).populate('authorId', 'userName');
+    res.status(200).json(updatedPost);
   } catch (error) {
     return next(error);
   }
