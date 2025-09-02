@@ -10,7 +10,9 @@ export const registerUser = async (
   res: Response,
   next: NextFunction
 ) => {
-  const { userName, email, password } = req.body;
+  const userName = req.body.userName?.trim();
+  const email = req.body.email?.trim();
+  const password = req.body.password?.trim();
   if (!userName || !email || !password) {
     return res.status(400).send({ message: 'All fields are required!' });
   }

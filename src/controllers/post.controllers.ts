@@ -27,7 +27,8 @@ export const createPost = async (req: PostRequest, res: Response, next: NextFunc
     return res.status(401).json({ message: 'Unauthorized' });
   }
   const { boardId } = req.params;
-  const { title, content } = req.body;
+  const title = req.body.title?.trim();
+  const content = req.body.content?.trim();
   if (!title || !content) {
     return res.status(400).json({ message: 'Title and content is required' });
   }
