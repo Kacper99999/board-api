@@ -92,3 +92,20 @@ export const updatePost = async (req: UpdateRequest, res: Response, next: NextFu
     return next(error);
   }
 };
+
+export const deletePost = async (req: PostByIDRequest, res: Response, next: NextFunction) => {
+  const { postId } = req.params;
+  try {
+    const post = await PostModel.findById(postId);
+    if (!post) {
+      return res.status(404).json({ message: 'Post not found' });
+    }
+    if (post.authorId?.toString() !== req.user?.userId) {
+      return res.status(403).json({ message: 'Forbidden: you can only edit your own posts' });
+    }
+    const deletedPost = await PostModel.findByIdAndDelete(postId);
+    res.status(200).json(deletedPost);
+  } catch (error) {
+    return next(error);
+  }
+};
