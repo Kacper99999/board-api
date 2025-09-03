@@ -2,6 +2,7 @@ import { Request, Response, NextFunction } from 'express';
 import { BoardModel } from '../models/board.model';
 import { BoardInput } from '../types/board';
 import { AuthRequest } from '../middleware/auth.middleware';
+import { validateFields } from '../utils/validateFields';
 
 interface BoardRequest extends AuthRequest {
   body: BoardInput;
@@ -20,13 +21,19 @@ export const postBoards = async (req: BoardRequest, res: Response, next: NextFun
   if (!req.user) {
     return res.status(401).json({ message: 'Unauthorized' });
   }
-  const title = req.body.title?.trim();
-  const description = req.body.description?.trim();
-  if (!title || !description) {
-    return res.status(400).json({ message: 'Title and description is required!' });
+  const { valid, data, missing } = validateFields({
+    title: req.body.title,
+    description: req.body.description,
+  });
+  if (!valid) {
+    return res.status(400).json({ message: `Missing ${missing.join(',')}` });
   }
   try {
-    const newBoard = await BoardModel.create({ title, description, author: req.user.userId });
+    const newBoard = await BoardModel.create({
+      title: data.title,
+      description: data.description,
+      author: req.user.userId,
+    });
     res.status(201).json(newBoard);
   } catch (error) {
     return next(error);
@@ -59,12 +66,22 @@ export const updateBoard = async (
   next: NextFunction
 ) => {
   const { id } = req.params;
-  const { title } = req.body;
+  const { valid, data, missing } = validateFields({
+    title: req.body.title,
+    description: req.body.description,
+  });
+  if (!valid) {
+    return res.status(400).json({ message: `Missing ${missing.join(',')}` });
+  }
   if (!id) {
     return res.status(400).json({ message: 'Board is required!' });
   }
   try {
-    const updatedBoard = await BoardModel.findByIdAndUpdate(id, { title }, { new: true });
+    const updatedBoard = await BoardModel.findByIdAndUpdate(
+      id,
+      { title: data.title, description: data.description },
+      { new: true }
+    );
     if (!updatedBoard) {
       return res.status(404).json({ message: 'Board not found' });
     }
