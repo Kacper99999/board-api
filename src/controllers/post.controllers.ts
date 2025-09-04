@@ -3,6 +3,7 @@ import { PostModel } from '../models/post.model';
 import { PostInput } from '../types/post';
 import { AuthRequest } from '../middleware/auth.middleware';
 import { BoardModel } from '../models/board.model';
+import { validateFields } from '../utils/validateFields';
 
 interface PostRequest extends AuthRequest {
   body: PostInput;
@@ -27,17 +28,24 @@ export const createPost = async (req: PostRequest, res: Response, next: NextFunc
     return res.status(401).json({ message: 'Unauthorized' });
   }
   const { boardId } = req.params;
-  const title = req.body.title?.trim();
-  const content = req.body.content?.trim();
-  if (!title || !content) {
-    return res.status(400).json({ message: 'Title and content is required' });
+  const { valid, data, missing } = validateFields({
+    title: req.body.title,
+    content: req.body.content,
+  });
+  if (!valid) {
+    return res.status(400).json({ message: `Missing ${missing.join(',')}` });
   }
   try {
     const board = await BoardModel.findById(boardId);
     if (!board) {
       return res.status(404).json({ message: 'Board not found' });
     }
-    const newPost = await PostModel.create({ title, content, boardId, authorId: req.user.userId });
+    const newPost = await PostModel.create({
+      title: data.title,
+      content: data.content,
+      boardId,
+      authorId: req.user.userId,
+    });
     const populatePost = await newPost.populate('authorId', 'userName');
     res.status(201).json(populatePost);
   } catch (error) {
@@ -74,7 +82,13 @@ export const getPostByID = async (req: PostByIDRequest, res: Response, next: Nex
 
 export const updatePost = async (req: UpdateRequest, res: Response, next: NextFunction) => {
   const { postId } = req.params;
-  const { title, content } = req.body;
+  const { valid, data, missing } = validateFields({
+    title: req.body.title,
+    content: req.body.content,
+  });
+  if (!valid) {
+    return res.status(400).json({ message: `Missing ${missing.join(',')}` });
+  }
   try {
     const post = await PostModel.findById(postId);
     if (!post) {
@@ -85,7 +99,7 @@ export const updatePost = async (req: UpdateRequest, res: Response, next: NextFu
     }
     const updatedPost = await PostModel.findByIdAndUpdate(
       postId,
-      { title, content },
+      { title: data.title, content: data.content },
       { new: true }
     ).populate('authorId', 'userName');
     res.status(200).json(updatedPost);

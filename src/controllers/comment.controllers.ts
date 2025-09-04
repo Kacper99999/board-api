@@ -16,7 +16,7 @@ export const createComment = async (req: CommentRequest, res: Response, next: Ne
   const { postId } = req.params;
   const { valid, data, missing } = validateFields({ content: req.body.content });
   if (!valid) {
-    return res.status(400).json({ message: `Missing${missing.join(',')}` });
+    return res.status(400).json({ message: `Missing ${missing.join(',')}` });
   }
   try {
     const newComment = (

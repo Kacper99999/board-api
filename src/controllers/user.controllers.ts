@@ -4,25 +4,33 @@ import { UserModel } from '../models/user.model';
 import { UserInput } from '../types/user';
 import { AuthRequest } from '../middleware/auth.middleware';
 import * as jwt from 'jsonwebtoken';
+import { validateFields } from '../utils/validateFields';
 
 export const registerUser = async (
   req: Request<Record<string, never>, unknown, UserInput>,
   res: Response,
   next: NextFunction
 ) => {
-  const userName = req.body.userName?.trim();
-  const email = req.body.email?.trim();
-  const password = req.body.password?.trim();
-  if (!userName || !email || !password) {
-    return res.status(400).send({ message: 'All fields are required!' });
+  const { valid, data, missing } = validateFields({
+    userName: req.body.userName,
+    email: req.body.email,
+    password: req.body.password,
+  });
+  if (!valid) {
+    return res.status(400).json({ message: `Missing ${missing.join(',')}` });
   }
   try {
+    const email = data.email;
     const existingUser = await UserModel.findOne({ email });
     if (existingUser) {
       return res.status(409).json({ message: 'Email already registerd' });
     }
-    const hashedPassword = await bcrypt.hash(password, 10);
-    const newUser = await UserModel.create({ userName, email, password: hashedPassword });
+    const hashedPassword = await bcrypt.hash(data.password, 10);
+    const newUser = await UserModel.create({
+      userName: data.userName,
+      email: data.email,
+      password: hashedPassword,
+    });
     res.status(201).json(newUser);
   } catch (error) {
     return next(error);
