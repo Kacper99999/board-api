@@ -4,7 +4,7 @@ const boardSchema = new Schema(
   {
     title: { type: String, required: true },
     description: { type: String },
-    author: {
+    authorId: {
       type: mongoose.Schema.Types.ObjectId,
       ref: 'User',
       required: true,

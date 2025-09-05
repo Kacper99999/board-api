@@ -2,6 +2,7 @@ import express, { NextFunction, Response, Request } from 'express';
 import boardRouters from './routes/board.routes';
 import userRouters from './routes/user.routers';
 import postRouter from './routes/post.routers';
+import commentRouter from './routes/comment.router';
 import mongoose from 'mongoose';
 import dotenv from 'dotenv';
 import cors from 'cors';
@@ -21,6 +22,7 @@ app.use(
 app.use('/boards', boardRouters);
 app.use('/auth', userRouters);
 app.use('/boards', postRouter);
+app.use('/boards', commentRouter);
 
 mongoose
   .connect('mongodb://127.0.0.1:27017/boardApp')

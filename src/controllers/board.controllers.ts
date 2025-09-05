@@ -7,6 +7,9 @@ import { validateFields } from '../utils/validateFields';
 interface BoardRequest extends AuthRequest {
   body: BoardInput;
 }
+interface DeleteRequest extends AuthRequest {
+  params: { boardId: string };
+}
 
 export const getBoards = async (_req: Request, res: Response, next: NextFunction) => {
   try {
@@ -32,7 +35,7 @@ export const postBoards = async (req: BoardRequest, res: Response, next: NextFun
     const newBoard = await BoardModel.create({
       title: data.title,
       description: data.description,
-      author: req.user.userId,
+      authorId: req.user.userId,
     });
     res.status(201).json(newBoard);
   } catch (error) {
@@ -40,20 +43,20 @@ export const postBoards = async (req: BoardRequest, res: Response, next: NextFun
   }
 };
 
-export const deleteBoard = async (
-  req: Request<{ id: string }>,
-  res: Response,
-  next: NextFunction
-) => {
-  const { id } = req.params;
-  if (!id) {
+export const deleteBoard = async (req: DeleteRequest, res: Response, next: NextFunction) => {
+  const { boardId } = req.params;
+  if (!boardId) {
     return res.status(400).json({ message: 'Board is required!' });
   }
   try {
-    const deletedBoard = await BoardModel.findByIdAndDelete(id);
-    if (!deletedBoard) {
+    const board = await BoardModel.findById(boardId);
+    if (!board) {
       return res.status(404).json({ message: 'Board not found' });
     }
+    if (board.authorId.toString() !== req.user?.userId) {
+      return res.status(403).json({ message: 'Forbidden: you can only delete your own comments' });
+    }
+    const deletedBoard = await BoardModel.findByIdAndDelete(board);
     res.status(200).json(deletedBoard);
   } catch (error) {
     return next(error);
@@ -96,7 +99,7 @@ export const getBoardByUser = async (req: AuthRequest, res: Response, next: Next
     return res.status(401).json({ message: 'Unauthorized' });
   }
   try {
-    const userBoards = await BoardModel.find({ author: req.user.userId });
+    const userBoards = await BoardModel.find({ authorId: req.user.userId });
     res.status(200).json(userBoards);
   } catch (error) {
     return next(error);
