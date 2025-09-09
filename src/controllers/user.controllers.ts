@@ -32,8 +32,12 @@ export const registerUser = async (
       password: hashedPassword,
     });
     res.status(201).json(newUser);
-  } catch (error) {
-    return next(error);
+  } catch (error: unknown) {
+    if (error instanceof Error) {
+      return next(error);
+    } else {
+      return next(new Error('Unknow error.'));
+    }
   }
 };
 
@@ -67,8 +71,12 @@ export const loginUser = async (
       user: { userName: user.userName, email: user.email, password: user.password },
       token,
     });
-  } catch (error) {
-    return next(error);
+  } catch (error: unknown) {
+    if (error instanceof Error) {
+      return next(error);
+    } else {
+      return next(new Error('Unknow error.'));
+    }
   }
 };
 
@@ -82,7 +90,11 @@ export const getCurrentUser = async (req: AuthRequest, res: Response, next: Next
       return res.status(404).json({ message: 'User not found' });
     }
     res.status(200).json(user);
-  } catch (error) {
-    return next(error);
+  } catch (error: unknown) {
+    if (error instanceof Error) {
+      return next(error);
+    } else {
+      return next(new Error('Unknow error.'));
+    }
   }
 };

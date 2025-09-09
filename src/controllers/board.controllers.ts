@@ -15,8 +15,12 @@ export const getBoards = async (_req: Request, res: Response, next: NextFunction
   try {
     const boards = await BoardModel.find();
     res.status(200).json(boards);
-  } catch (error) {
-    return next(error);
+  } catch (error: unknown) {
+    if (error instanceof Error) {
+      return next(error);
+    } else {
+      return next(new Error('Unknow error.'));
+    }
   }
 };
 
@@ -38,8 +42,12 @@ export const postBoards = async (req: BoardRequest, res: Response, next: NextFun
       authorId: req.user.userId,
     });
     res.status(201).json(newBoard);
-  } catch (error) {
-    return next(error);
+  } catch (error: unknown) {
+    if (error instanceof Error) {
+      return next(error);
+    } else {
+      return next(new Error('Unknow error.'));
+    }
   }
 };
 
@@ -58,8 +66,12 @@ export const deleteBoard = async (req: DeleteRequest, res: Response, next: NextF
     }
     const deletedBoard = await BoardModel.findByIdAndDelete(board);
     res.status(200).json(deletedBoard);
-  } catch (error) {
-    return next(error);
+  } catch (error: unknown) {
+    if (error instanceof Error) {
+      return next(error);
+    } else {
+      return next(new Error('Unknow error.'));
+    }
   }
 };
 
@@ -89,8 +101,12 @@ export const updateBoard = async (
       return res.status(404).json({ message: 'Board not found' });
     }
     res.status(200).json(updatedBoard);
-  } catch (error) {
-    return next(error);
+  } catch (error: unknown) {
+    if (error instanceof Error) {
+      return next(error);
+    } else {
+      return next(new Error('Unknow error.'));
+    }
   }
 };
 
@@ -101,7 +117,11 @@ export const getBoardByUser = async (req: AuthRequest, res: Response, next: Next
   try {
     const userBoards = await BoardModel.find({ authorId: req.user.userId });
     res.status(200).json(userBoards);
-  } catch (error) {
-    return next(error);
+  } catch (error: unknown) {
+    if (error instanceof Error) {
+      return next(error);
+    } else {
+      return next(new Error('Unknow error.'));
+    }
   }
 };

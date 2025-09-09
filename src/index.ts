@@ -3,6 +3,7 @@ import boardRouters from './routes/board.routes';
 import userRouters from './routes/user.routers';
 import postRouter from './routes/post.routers';
 import commentRouter from './routes/comment.router';
+import { errorHandler } from './middleware/error.middleware';
 import mongoose from 'mongoose';
 import dotenv from 'dotenv';
 import cors from 'cors';
@@ -23,6 +24,7 @@ app.use('/boards', boardRouters);
 app.use('/auth', userRouters);
 app.use('/boards', postRouter);
 app.use('/boards', commentRouter);
+app.use(errorHandler);
 
 mongoose
   .connect('mongodb://127.0.0.1:27017/boardApp')

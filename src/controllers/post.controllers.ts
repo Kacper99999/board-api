@@ -48,8 +48,12 @@ export const createPost = async (req: PostRequest, res: Response, next: NextFunc
     });
     const populatePost = await newPost.populate('authorId', 'userName');
     res.status(201).json(populatePost);
-  } catch (error) {
-    return next(error);
+  } catch (error: unknown) {
+    if (error instanceof Error) {
+      return next(error);
+    } else {
+      return next(new Error('Unknow error.'));
+    }
   }
 };
 
@@ -62,8 +66,12 @@ export const getPostsByBoard = async (
   try {
     const posts = await PostModel.find({ boardId }).populate('authorId', 'userName');
     res.status(200).json(posts);
-  } catch (error) {
-    return next(error);
+  } catch (error: unknown) {
+    if (error instanceof Error) {
+      return next(error);
+    } else {
+      return next(new Error('Unknow error.'));
+    }
   }
 };
 
@@ -75,8 +83,12 @@ export const getPostByID = async (req: PostByIDRequest, res: Response, next: Nex
       return res.status(404).json({ message: 'Post not found' });
     }
     res.status(200).json(findedPost);
-  } catch (error) {
-    return next(error);
+  } catch (error: unknown) {
+    if (error instanceof Error) {
+      return next(error);
+    } else {
+      return next(new Error('Unknow error.'));
+    }
   }
 };
 
@@ -103,8 +115,12 @@ export const updatePost = async (req: UpdateRequest, res: Response, next: NextFu
       { new: true }
     ).populate('authorId', 'userName');
     res.status(200).json(updatedPost);
-  } catch (error) {
-    return next(error);
+  } catch (error: unknown) {
+    if (error instanceof Error) {
+      return next(error);
+    } else {
+      return next(new Error('Unknow error.'));
+    }
   }
 };
 
@@ -120,7 +136,11 @@ export const deletePost = async (req: PostByIDRequest, res: Response, next: Next
     }
     const deletedPost = await PostModel.findByIdAndDelete(postId);
     res.status(200).json(deletedPost);
-  } catch (error) {
-    return next(error);
+  } catch (error: unknown) {
+    if (error instanceof Error) {
+      return next(error);
+    } else {
+      return next(new Error('Unknow error.'));
+    }
   }
 };

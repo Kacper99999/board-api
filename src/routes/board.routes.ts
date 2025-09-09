@@ -10,10 +10,10 @@ import { authenticateToken } from '../middleware/auth.middleware';
 
 const router = Router();
 
-router.get('/', getBoards);
+router.get('/',authenticateToken, getBoards);
 router.get('/', authenticateToken, getBoardByUser);
 router.post('/', authenticateToken, postBoards);
-router.delete('/:id', deleteBoard);
-router.put('/:id', updateBoard);
+router.delete('/:id', authenticateToken, deleteBoard);
+router.put('/:id',authenticateToken, updateBoard);
 
 export default router;

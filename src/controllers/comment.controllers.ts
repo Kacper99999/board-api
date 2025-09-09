@@ -36,8 +36,12 @@ export const createComment = async (req: CommentRequest, res: Response, next: Ne
     });
     const populateComment = newComment.populate('authorId', 'userName');
     res.status(201).json(populateComment);
-  } catch (error) {
-    return next(error);
+  } catch (error: unknown) {
+    if (error instanceof Error) {
+      return next(error);
+    } else {
+      return next(new Error('Unknow error.'));
+    }
   }
 };
 
@@ -46,8 +50,12 @@ export const getComments = async (req: GetCommentRequest, res: Response, next: N
   try {
     const allComments = await CommentModel.find({ postId });
     res.status(200).json(allComments);
-  } catch (error) {
-    return next(error);
+  } catch (error: unknown) {
+    if (error instanceof Error) {
+      return next(error);
+    } else {
+      return next(new Error('Unknow error.'));
+    }
   }
 };
 
@@ -63,8 +71,12 @@ export const deleteComment = async (req: DeleteRequest, res: Response, next: Nex
     }
     const deletedComment = CommentModel.findByIdAndDelete(commentId);
     return res.status(200).json(deletedComment);
-  } catch (error) {
-    return next(error);
+  } catch (error: unknown) {
+    if (error instanceof Error) {
+      return next(error);
+    } else {
+      return next(new Error('Unknow error.'));
+    }
   }
 };
 
@@ -88,7 +100,11 @@ export const updateComment = async (req: UpdateRequest, res: Response, next: Nex
       { new: true }
     );
     res.status(200).json(updatedComment);
-  } catch (error) {
-    return next(error);
+  } catch (error: unknown) {
+    if (error instanceof Error) {
+      return next(error);
+    } else {
+      return next(new Error('Unknow error.'));
+    }
   }
 };
